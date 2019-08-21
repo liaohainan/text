@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <p>{{msg}}</p>
+        <p>{{msg}}</p>
+        <p>{{msg}}</p>
+        <p>{{num}}</p>
+        <input type="text" v-model="num">
+        <button @click="change">change</button>
+    </div>
+
+
+
+
+
+
+    <script>
+    class Dep{
+        constructor(){
+            this.subs = []
+        }
+        addSub(watcher){
+            this.subs.push(watcher)
+        }
+        notify(val, oldVal){
+            for (const watcher of this.subs) {
+                watcher.update(val, oldVal)
+            }
+        }
+    }
+    class Watcher{
+        constructor(vm, key, cb){
+            this.vm = vm
+            this.key = key
+            this.cb = cb
+            this.get()
+        }
+        update(val, oldVal){
+            this.cb.call(this.vm, val, oldVal)
+        }
+        get(){
+            Dep.target = this
+            let value = this.vm[this.key]
+            Dep.target = null
+        }
+    }
+    class Observer{
+        constructor(data){
+            this.data = data
+            this.init(data)
+        }
+        init(data){
+            if(!data || typeof(data) !== 'object') return
+            for (const key in data) {
+                this.defineReactive(data, key, data[key])
+                this.init(data[key])
+            }
+        }
+        defineReactive(data, key, val){
+            let oldVal = val
+            let dep = new Dep()
+            Object.defineProperty(data, key, {
+                configurable: true,
+                enumerable: true,
+                get(){
+                    console.log('get')
+                    if(Dep.target){
+                        dep.addSub(Dep.target)
+                    }
+                    return oldVal
+                },
+                set(val){
+                    if(val == oldVal) return
+                    console.log(val,'set')
+                    dep.notify(val, oldVal)
+                    oldVal = val
+                }
+            })
+        }
+    }
+    class Compile{
+        constructor(vm, el, data){
+            this.vm = vm
+            this.data = data
+            let nodes = document.querySelector(el).childNodes
+            console.dir(nodes)
+            this.compileNodes(nodes)
+        }
+        compileNodes(nodes){
+            for (const node of nodes) {
+                switch (node.nodeType) {
+                    case 1:
+                        this.compileNode(node)
+                        break;
+                
+                    case 3:
+                        this.compileText(node)
+                        break;
+                
+                    default:
+                        break;
+                }
+                node.childNodes && node.childNodes.length && this.compileNodes(node.childNodes)
+            }
+            
+        }
+        compileText(node){
+            let reg = /\{\{(.*)\}\}/
+            if(node.textContent !== '' && reg.test(node.textContent)){
+                let key = reg.exec(node.textContent)[1]
+                node.textContent = this.vm[key]
+                new Watcher(this.vm, key, (val) => {
+                    node.textContent = val
+                })
+            }
+        }
+        compileNode(node){
+            let attrs = node.attributes
+            for (const attr of attrs) {
+                if(attr.name.indexOf('@') > -1){
+                    let event = attr.name.split('@')[1]
+                    let key = attr.value
+                    node.addEventListener(event, () => {
+                        this.vm[key]()
+                        
+                    })
+                }
+                if(attr.name.indexOf('v-model') > -1){
+                    let key = attr.value
+                    node.value = this.vm[key]
+                    node.addEventListener('input', (event) => {
+                        console.log(event)
+                        this.vm[key] = event.target.value
+                    })
+                    new Watcher(this.vm, key, (val) => {
+                        node.value = this.vm[key]
+                    })
+                }
+            }
+        }
+    }
+    class Vue{
+        constructor({el, data, methods, watch, created, mounted}){
+            this.data = data()
+            this.methods = methods
+            this.observer()
+            new Observer(this.data)
+            created && created.call(this)
+            this.watch = watch
+            this.initWatcher()
+            new Compile(this, el, this.data)
+            mounted && mounted.call(this)
+        }
+        initWatcher(){
+            for (const key in this.watch) {
+                new Watcher(this, key, this.watch[key])
+            }
+        }
+        observer(){
+            for (const key in this.data) {
+                Object.defineProperty(this, key, {
+                    configurable: true,
+                    enumerable: false,
+                    get(){
+                        // console.log('get')
+                        return this.data[key]
+                    },
+                    set(val){
+                        // console.log(val,'set')
+                        this.data[key] = val
+                    }
+                })
+            }
+            for (const key in this.methods) {
+                Object.defineProperty(this, key, {
+                    configurable: true,
+                    enumerable: false,
+                    get(){
+                        // console.log('get')
+                        return this.methods[key]
+                    },
+                    set(val){
+                        // console.log(val,'set')
+                        this.methods[key] = val
+                    }
+                })
+            }
+        }
+    }
+    
+    var vm = new Vue({
+        el: '#app',
+        data(){
+            return {
+                msg: 'hello vue',
+                msg2: 'hello vue2',
+                num: 1
+
+            }
+        },
+        methods: {
+            change(){
+                // console.log(e)
+                console.log('click')
+                this.num++
+                this.msg = 'hello one'
+                // e.stopPropagation()
+                // this.set(this.good, 'a', 'aaaa')
+            }
+        },
+        watch: {
+            num(val, oldVal){
+                console.log(val,'watch')
+            }
+        },
+        created(){
+            console.log('created')
+        },
+        mounted(){
+            console.log('mounted')
+        }
+    })
+    </script>
+</body>
+</html>
