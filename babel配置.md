@@ -320,3 +320,5 @@ npm install --save-dev  babel-preset-env babel-plugin-transform-runtime babel-pr
   ]
 }
 ```
+modules 字段配置 Babel 对 ES6 模块的相应处理。
+Babel 默认是将ES6模块语法转化为CommonJS规范写法，配置为modules:false则不转化。如果使用了 Webpack 且配置为modules:false，Webpack 会进行 tree shaking，去除一些无用代码。
