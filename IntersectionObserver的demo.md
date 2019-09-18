@@ -61,11 +61,12 @@ const SpmView = (ContentComponent) => {
     constructor(props) {
       super(props);
       this.myRef = React.createRef();
+      this.observer = null
     }
     init() {
       // let box = document.querySelectorAll('.box');
       // console.log(box)
-      let observer = new IntersectionObserver(entries => {
+      this.observer = new IntersectionObserver(entries => {
         console.log(`发生交叉行为，目标元素有${entries.length}个`);
         console.log("发生曝光行为");
         
@@ -73,10 +74,14 @@ const SpmView = (ContentComponent) => {
 
       // box.forEach(item => observer.observe(item)); // 监听多个box
       let item = this.myRef.current.ref;
-      observer.observe(item);
+      this.observer.observe(item);
     }
     componentDidMount() {
       this.init();
+    }
+    componentWillUnmount(){
+      this.observer.disconnect()
+      this.observer = null
     }
     render() {
       return <ContentComponent {...this.props} ref={this.myRef} />;
@@ -85,6 +90,7 @@ const SpmView = (ContentComponent) => {
 };
 
 export default SpmView;
+
 
 
 ```
