@@ -18,3 +18,12 @@ window.___inputValue = function (dom, st) {
 window.___inputValue(document.querySelector('input'),'输入要赋值的内容')
 ```
 这方面的资料相对较少,这里记录一下以便将来需要用到时查阅方便.
+
+vue源码方法
+```js
+function trigger (el, type) {
+    var e = document.createEvent('HTMLEvents');
+    e.initEvent(type, true, true);
+    el.dispatchEvent(e);
+  }
+```
