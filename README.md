@@ -19,3 +19,9 @@
 #  工具
 画注释图
 http://asciiflow.com/
+
+百度统计
+https://tongji.baidu.com/research/app?source=index
+
+腾讯统计
+https://mta.qq.com/mta/data/device/brand
