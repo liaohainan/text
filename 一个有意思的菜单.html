@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://revealjs.com//main.css?1606811596430"
+    />
+  </head>
+  <body>
+    <nav
+      class="sidebar-scroller text-base sm:text-sm inset-0 overflow-y-auto overflow-x-hidden px-6 py-8 h-full"
+      style="width: 200px"
+    >
+      <ul>
+        <li class="level-1 mb-4">
+          <span
+            class="block text-sm sm:text-xs mb-2 uppercase font-semibold text-gray-500"
+            >Getting Started</span
+          >
+          <ul>
+            <li class="level-2 mb-px">
+              <a href="#" class="nav-link -mx-1 p-1">Demo</a>
+            </li>
+            <li class="level-2 mb-px">
+              <a href="#" class="nav-link -mx-1 p-1">Overview</a>
+            </li>
+            <li class="level-2 mb-px">
+              <a href="#" class="nav-link -mx-1 p-1">Installation</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <ul>
+        <li class="level-1 mb-4">
+          <span
+            class="block text-sm sm:text-xs mb-2 uppercase font-semibold text-gray-500"
+            >Getting Started2</span
+          >
+          <ul>
+            <li class="level-2 mb-px">
+              <a href="#" class="nav-link -mx-1 p-1">Demo2</a>
+            </li>
+            <li class="level-2 mb-px">
+              <a href="#" class="nav-link -mx-1 p-1">Overview2</a>
+            </li>
+            <li class="level-2 mb-px">
+              <a href="#" class="nav-link -mx-1 p-1">Installation2</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <script>
+      function addTransformOrigin(e) {
+        let originX = (event.offsetX / e.offsetWidth) * 100;
+        let originY = (event.offsetY / e.offsetHeight) * 100;
+        originX = Math.min(Math.max(originX, 0), 100);
+        originY = Math.min(Math.max(originY, 0), 100);
+        e.style.transformOrigin =
+          Math.round(originX) + '% ' + Math.round(originY) + '%';
+      }
+
+      function addTransform(e, translateX, translateY, scale) {
+        e.style.transform =
+          'scale(' +
+          scale +
+          ') translate(' +
+          translateX +
+          'px,' +
+          translateY +
+          'px)';
+      }
+
+      var mouseX = 0,
+        mouseY = 0,
+        prevTimeStamp = Date.now(),
+        prevPageX,
+        prevPageY;
+
+      document.addEventListener('mousemove', () => {
+        if (prevPageX && prevPageY) {
+          let deltaPageX = event.pageX - prevPageX;
+          let deltaPageY = event.pageY - prevPageY;
+          mouseX = deltaPageX / 6;
+          mouseY = deltaPageY / 6;
+          mouseX = Math.max(Math.min(mouseX, 2), -2);
+          mouseY = Math.max(Math.min(mouseY, 2), -2);
+        }
+        prevPageX = event.pageX;
+        prevPageY = event.pageY;
+      });
+
+      window.onload = function () {
+        var menuSelector = '.nav-link';
+        var timeout = 0;
+        Array.from(document.querySelectorAll(menuSelector)).forEach((e) => {
+          e.classList.add('r-anchor');
+          e.innerHTML =
+            '<span class="r-anchor-label">' +
+            e.innerHTML +
+            '</span><span class="r-anchor-background"></span>';
+        });
+        Array.from(document.querySelectorAll('.r-anchor')).forEach((anchor) => {
+          var menuAnchorBgSelector = '.r-anchor-background';
+
+          let menuAnchors = Array.from(
+            anchor.querySelectorAll(menuAnchorBgSelector)
+          );
+
+          anchor.addEventListener(
+            'mouseenter',
+            function (t) {
+              clearTimeout(timeout),
+                menuAnchors.forEach((menu) => {
+                  addTransformOrigin(menu);
+                  let timeDelta = Date.now() - prevTimeStamp < 200 ? 1 : 0.7;
+                  menu.classList.add('no-transition');
+                  addTransform(menu, -16 * mouseX, -16 * mouseY, timeDelta);
+                  menu.classList.remove('no-transition');
+                }),
+                timeout = setTimeout(() => {
+                  anchor.classList.add('hover');
+                }, 1);
+            },
+            false
+          );
+          anchor.addEventListener(
+            'mouseleave',
+            function (mouseEvent) {
+              prevTimeStamp = Date.now();
+              clearTimeout(timeout);
+              anchor.classList.remove('hover');
+              menuAnchors.forEach((e) => {
+                addTransformOrigin(e);
+                addTransform(e, 16 * mouseX, 16 * mouseY, 0.7);
+              });
+            },
+            false
+          );
+        });
+      };
+    </script>
+  </body>
+</html>
