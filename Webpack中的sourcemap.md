@@ -91,3 +91,4 @@ webpack中devtool的配置的官方文档在这 ：[webpack-devtool](https://web
 通过以上两个问题的解释， webpack中的sourcemap各个配置项异同应该有了一定认识，乍看之下各个配置项很难记忆， 但其实从每个关键字所代表的特性入手， 就能体会到他们的异同。他们在webpack中的主要区别一个体现在重构的性能上， 总的来说`eval`性能最好，`source-map`性能最低，但就我自身的实践来看大多用的是最完整的`source-map`，该模式对于不管是js还是css，scss等都能很好的覆盖， 相反其他模式都不完整， 在开发环境下重构性能似乎比不上功能的完善。&nbsp;
 另外需要补充的是`module`关键字， 当加上`module`关键字webpack将会添加loader的sourcemap。
 
+[文章来源](https://www.cnblogs.com/axl234/p/6500534.html)
